@@ -1,10 +1,44 @@
 import { catchAsync } from '../../common/utils/catchAsync.js';
 import { successResponse } from '../../common/utils/response.js';
 import {
+  getAllPaymentService,
+  getPaymentService,
   initializePaystackPaymentService,
   paystackWebhookService,
   verifyAndCreditPaystackService,
 } from './paymentService.js';
+
+export const getAllPayment = catchAsync(async (req, res, next) => {
+  const userId = req.user._id.toString();
+  const userRole = req.user.role;
+
+  const { payment, meta } = await getAllPaymentService({
+    userId,
+    userRole,
+    requestQuery: req.query,
+  });
+
+  successResponse(
+    res,
+    200,
+    { data: { meta, payment } },
+    'Payment Retrieved Success',
+  );
+});
+
+export const getPayment = catchAsync(async (req, res, next) => {
+  const userId = req.user._id;
+  const userRole = req.user.role;
+  const { paymentId } = req.params;
+
+  const { payment } = await getPaymentService({
+    userId,
+    userRole,
+    paymentId,
+  });
+
+  successResponse(res, 200, { data: { payment } }, 'Payment Retrieved Success');
+});
 
 export const initializePaystackPayment = catchAsync(async (req, res, next) => {
   const userId = req.user._id.toString();
@@ -45,9 +79,9 @@ export const paystackWebhook = catchAsync(async (req, res, next) => {
   const requestRawBody = req.rawBody;
   const requestBody = req.body;
 
-  console.log('🔥 PAYSTACK WEBHOOK RECEIVED');
-  console.log('Event:', req.body.event);
-  console.log('Body:', req.body);
+  // console.log('🔥 PAYSTACK WEBHOOK RECEIVED');
+  // console.log('Event:', req.body.event);
+  // console.log('Body:', req.body);
 
   await paystackWebhookService({ signature, requestBody, requestRawBody });
 

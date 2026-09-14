@@ -7,6 +7,56 @@ import {
 } from './gateway/paystack/paystackService.js';
 import { Payment } from './paymentModel.js';
 import { walletCreditService } from '../wallet/walletService.js';
+import APIFeatures from '../../common/utils/apiFeatures.js';
+
+// get payment transaction
+
+export const getAllPaymentService = async ({
+  userId,
+  userRole,
+  requestQuery,
+}) => {
+  let filter = {};
+
+  if (userRole !== 'admin') {
+    filter.user = userId;
+  }
+
+  const features = new APIFeatures(
+    Payment.find(filter),
+    requestQuery,
+    Payment,
+    filter,
+  )
+    .filter()
+    .sorting()
+    .limitFields()
+    .pagination();
+
+  const payment = await features.queryModel;
+  const meta = await features.getMeta();
+
+  return { payment, meta };
+};
+
+// Get Payment
+
+export const getPaymentService = async ({ paymentId, userId, userRole }) => {
+  const payment = await Payment.findById(paymentId);
+
+  if (!payment) {
+    throw new AppError('Data Order not found', 404);
+  }
+
+  if (userRole !== 'admin' && userId.toString() !== payment.user.toString()) {
+    throw new AppError(
+      'You are not authorized to get another user data order details',
+      403,
+    );
+  }
+
+  return { payment };
+};
 
 // initialize paystack
 
