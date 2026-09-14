@@ -45,6 +45,10 @@ export const paystackWebhook = catchAsync(async (req, res, next) => {
   const requestRawBody = req.rawBody;
   const requestBody = req.body;
 
+  console.log('🔥 PAYSTACK WEBHOOK RECEIVED');
+  console.log('Event:', req.body.event);
+  console.log('Body:', req.body);
+
   await paystackWebhookService({ signature, requestBody, requestRawBody });
 
   res.sendStatus(200);
