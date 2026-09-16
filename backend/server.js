@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import mongoose from 'mongoose';
 import { app } from './app.js';
+import { startPaymentReconciliation } from './src/common/jobs/reconcilePayment.js';
 
 const DB = process.env.DATABASE;
 
@@ -11,6 +12,8 @@ mongoose
 
 const server = app.listen(process.env.PORT || 3000, () => {
   console.log('Server Started on Port 3000');
+
+  startPaymentReconciliation();
 });
 
 process.on('unhandledRejection', (err) => {

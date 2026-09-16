@@ -210,3 +210,45 @@ export const paystackWebhookService = async ({
   }
   await verifyAndCreditPaystackService({ reference: event.data.reference });
 };
+
+export const reconcilePendingPaymentService = async ({
+  olderThanMinutes = 5,
+  limit = 100,
+} = {}) => {
+  const cutOff = new Date(Date.now() - olderThanMinutes * 60 * 1000);
+
+  const pendingTxn = await Payment.find({
+    status: 'pending',
+    createdAt: { $lte: cutOff },
+  })
+    .limit(limit)
+    .lean();
+
+  const result = {
+    checked: pendingTxn.length,
+    resolved: 0,
+    failed: 0,
+    errors: [],
+  };
+
+  for (const txn of pendingTxn) {
+    try {
+      const updated = await verifyAndCreditPaystackService({
+        reference: txn.reference,
+      });
+
+      if (updated.paymentTxn.status !== 'pending') {
+        result.resolved += 1;
+      }
+    } catch (err) {
+      result.failed += 1;
+      result.errors.push({ reference: txn.reference, message: err.message });
+      console.error(
+        `Payment reconciliation failed for ${txn.reference}: `,
+        err.message,
+      );
+    }
+  }
+
+  return result;
+};
