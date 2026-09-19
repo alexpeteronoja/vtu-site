@@ -4,6 +4,7 @@ import { AppError } from '../../common/utils/appError.js';
 import { signAccessToken } from '../../common/utils/jwt.js';
 import mongoose from 'mongoose';
 import { createWalletService } from '../wallet/walletService.js';
+import { logger } from '../../common/utils/logger.js';
 
 export const signUpService = async ({
   fullname,
@@ -48,7 +49,7 @@ export const signUpService = async ({
   } catch (err) {
     await session.abortTransaction();
 
-    console.error('Transaction failed', err);
+    logger.error('Transaction failed', err);
     throw err;
   } finally {
     session.endSession();

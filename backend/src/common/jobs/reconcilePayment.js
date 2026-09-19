@@ -1,9 +1,10 @@
 import cron from 'node-cron';
 import { reconcilePendingPaymentService } from '../../modules/payment/paymentService.js';
+import { logger } from '../utils/logger.js';
 
 export const startPaymentReconciliation = () => {
   cron.schedule(
-    '*/5 * * * *',
+    '*/30 * * * *',
     async () => {
       try {
         console.log('started');
@@ -22,11 +23,11 @@ export const startPaymentReconciliation = () => {
           // Wire this into alerting that is email
           // a persistently failing reference usually means a genuine  mismatch or an API credential issue that needs a human.
 
-          console.error('reconcile payment failures:', results.errors);
+          logger.error('reconcile payment failures:', results.errors);
         }
       } catch (err) {
         // alerting on immediately no fundings get reconciled until fixed.
-        console.error('reconcile funding job crashed:', err.message);
+        logger.error('reconcile funding job crashed:', err.message);
       }
     },
     { noOverlap: true },

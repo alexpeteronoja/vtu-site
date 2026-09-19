@@ -7,6 +7,7 @@ import { AirtimeOrder } from './airtimeOrderModel.js';
 import { vtPassPurchaseAirtime } from '../providers/vtpass.js';
 import APIFeatures from '../../common/utils/apiFeatures.js';
 import { AppError } from '../../common/utils/appError.js';
+import { logger } from '../../common/utils/logger.js';
 
 export const purchaseAirtimeService = async ({
   userId,
@@ -53,7 +54,7 @@ export const purchaseAirtimeService = async ({
     });
   } catch (err) {
     await session.abortTransaction();
-    console.error('Airtime Purchase failed', err);
+    logger.error('Airtime Purchase failed', err);
     throw err;
   } finally {
     session.endSession();
@@ -110,7 +111,7 @@ export const callAggregatorAndFinalize = async ({
       });
     }
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     await AirtimeOrder.findByIdAndUpdate(airtimeTxn._id, {
       status: 'pending',
       providerResponse: err?.message,
@@ -175,7 +176,7 @@ const refundAndMarkFailed = async ({ airtimeTxn, providerResponse }) => {
       message: 'Airtime Purchase Failed',
     };
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     await session.abortTransaction();
     throw err; // this needs alerting — a failed refund is money stuck
   } finally {

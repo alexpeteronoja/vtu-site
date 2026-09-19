@@ -8,6 +8,7 @@ import {
 } from '../wallet/walletService.js';
 import { DataOrder } from './dataOrderModel.js';
 import { vtPassPurchaseData } from '../providers/vtpass.js';
+import { logger } from '../../common/utils/logger.js';
 
 export const createDataPlanService = async ({ ...dataPlanEntry }) => {
   const dataPlan = await DataPlan.create(dataPlanEntry);
@@ -171,7 +172,7 @@ export const purchaseDataService = async ({
     });
   } catch (err) {
     await session.abortTransaction();
-    console.error(err);
+    logger.error(err);
     throw err;
   } finally {
     session.endSession();
@@ -227,7 +228,7 @@ const callAggregatorAndFinalize = async ({
       });
     }
   } catch (err) {
-    console.error('fake error', err);
+    logger.error('fake error', err);
     await DataOrder.findByIdAndUpdate(dataTxn._id, {
       status: 'pending',
       providerResponse: err?.message,
@@ -293,7 +294,7 @@ const refundAndMarkFailed = async ({ dataTxn, providerResponse }) => {
       message: 'Data Purchase Failed',
     };
   } catch (err) {
-    console.log(err);
+    logger.error(err);
     await session.abortTransaction();
     throw err; // this needs alerting — a failed refund is money stuck
   } finally {

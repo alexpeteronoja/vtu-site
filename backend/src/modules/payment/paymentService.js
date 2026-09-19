@@ -8,6 +8,7 @@ import {
 import { Payment } from './paymentModel.js';
 import { walletCreditService } from '../wallet/walletService.js';
 import APIFeatures from '../../common/utils/apiFeatures.js';
+import { logger } from '../../common/utils/logger.js';
 
 // get payment transaction
 
@@ -127,6 +128,18 @@ export const verifyAndCreditPaystackService = async ({ reference }) => {
         },
       });
 
+      logger.warn(
+        {
+          paymentId: paymentTxn._id,
+          userId: paymentTxn.user,
+          reference,
+          expectedAmount: paymentTxn.amount,
+          amountPaid: amountPaid,
+          mismatch: true,
+        },
+        'Amount mismatch',
+      );
+
       throw new AppError('Amount Paid is not Equal to what is expected', 400);
     }
 
@@ -147,7 +160,6 @@ export const verifyAndCreditPaystackService = async ({ reference }) => {
 
       if (!updatedPaymentTxn) {
         await session.abortTransaction();
-        await session.endSession();
         return { paymentTxn };
       }
 
@@ -164,7 +176,14 @@ export const verifyAndCreditPaystackService = async ({ reference }) => {
       return { paymentTxn: updatedPaymentTxn };
     } catch (err) {
       await session.abortTransaction();
-      console.log(err);
+      logger.error(
+        {
+          paymentId: paymentTxn._id,
+          userId: paymentTxn.user,
+          reference,
+        },
+        'Failed to credit wallet for Paystack payment',
+      );
       throw err;
     } finally {
       await session.endSession();
@@ -243,7 +262,7 @@ export const reconcilePendingPaymentService = async ({
     } catch (err) {
       result.failed += 1;
       result.errors.push({ reference: txn.reference, message: err.message });
-      console.error(
+      logger.error(
         `Payment reconciliation failed for ${txn.reference}: `,
         err.message,
       );
