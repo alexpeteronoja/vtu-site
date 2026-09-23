@@ -1,9 +1,12 @@
+import mongoose from 'mongoose';
 import APIFeatures from '../../common/utils/apiFeatures.js';
 import { AppError } from '../../common/utils/appError.js';
 import { User } from './userModel.js';
+import { logger } from '../../common/utils/logger.js';
+import { deleteWalletService } from '../wallet/walletService.js';
 
 export const getAllUserService = async ({ requestQuery }) => {
-  const features = new APIFeatures(User.find(), requestQuery.query, User)
+  const features = new APIFeatures(User.find(), requestQuery, User)
     .filter()
     .sorting()
     .limitFields()
@@ -40,13 +43,28 @@ export const getUserService = async ({
 // Delete User Service
 
 export const deleteUserService = async ({ userId }) => {
-  const user = await User.findByIdAndDelete(userId);
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-  if (!user) {
-    throw new AppError('No document found with that ID', 404);
+  try {
+    const user = await User.findByIdAndDelete(userId, { session });
+
+    if (!user) {
+      throw new AppError('No document found with that ID', 404);
+    }
+
+    await deleteWalletService({ userId, session });
+
+    await session.commitTransaction();
+
+    return { user };
+  } catch (err) {
+    await session.abortTransaction();
+    logger.error('Delete Wallet Error', err);
+    throw err;
+  } finally {
+    session.endSession();
   }
-
-  return { user };
 };
 
 // Update Service

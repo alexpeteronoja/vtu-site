@@ -24,7 +24,7 @@ export const purchaseAirtimeService = async ({
       amount,
       session,
       transactionType: 'airtime_purchase',
-      status: 'pending',
+      status: 'successful',
     });
 
     const [airtimeTxn] = await AirtimeOrder.create(

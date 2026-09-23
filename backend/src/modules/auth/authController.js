@@ -57,7 +57,7 @@ export const verifyResetOtp = catchAsync(async (req, res) => {
 export const resetPassword = catchAsync(async (req, res) => {
   const { email, verifiedToken, newPassword, newPasswordConfirm } = req.body;
 
-  const { accessToken } = await resetPasswordService({
+  const { user, accessToken } = await resetPasswordService({
     email,
     verifiedToken,
     newPassword,
@@ -67,7 +67,7 @@ export const resetPassword = catchAsync(async (req, res) => {
   successResponse(
     res,
     200,
-    { data: { accessToken } },
+    { data: { accessToken, user } },
     'Password Reset Success',
   );
 });

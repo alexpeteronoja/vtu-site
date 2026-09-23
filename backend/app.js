@@ -1,5 +1,6 @@
 import express from 'express';
 import morgan from 'morgan';
+import cors from 'cors';
 import { authRouter } from './src/modules/auth/authRoutes.js';
 import { errorHandler } from './src/common/middleware/errorHandler.js';
 import { AppError } from './src/common/utils/appError.js';
@@ -10,6 +11,13 @@ import { airtimeRouter } from './src/modules/airtime/airtimeRoutes.js';
 import { paymentRouter } from './src/modules/payment/paymentRoutes.js';
 
 const app = express();
+
+// allow CORS for all sites
+app.use(
+  cors({
+    origin: ['http://localhost:5173'],
+  }),
+);
 
 // development logging
 

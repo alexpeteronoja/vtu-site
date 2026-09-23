@@ -78,8 +78,8 @@ export const loginService = async (email, password) => {
 
 // Forgot Password
 
-export const forgotPasswordService = async ({ email }) => {
-  const user = await User.findOne(email);
+export const forgotPasswordService = async (email) => {
+  const user = await User.findOne({ email });
 
   if (!user) {
     throw new AppError('There is no user with that Email address', 404);
@@ -89,6 +89,7 @@ export const forgotPasswordService = async ({ email }) => {
   await user.save({ validateBeforeSave: false });
 
   console.log(resetToken);
+  return;
 };
 
 // verify reset otp
@@ -97,7 +98,7 @@ export const verifyResetOtpService = async ({ email, resetToken }) => {
   const user = await User.findOne({ email });
 
   if (!user) {
-    throw new AppError('Invalid or Expired OTP', 400);
+    throw new AppError('User not found', 400);
   }
 
   const hashedToken = crypto
@@ -172,8 +173,10 @@ export const resetPasswordService = async ({
   await user.save();
 
   const accessToken = signAccessToken(user._id);
+  
+  user.password = undefined;
 
-  return { accessToken };
+  return { user, accessToken };
 };
 
 // export const resetPasswordService = async ({

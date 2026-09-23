@@ -4,13 +4,13 @@ import {
   getAllAirtimeOrder,
   purchaseAirtime,
 } from './airtimeController.js';
-import { protect } from '../../common/middleware/authMiddleware.js';
+import { protect, restrictTo } from '../../common/middleware/authMiddleware.js';
 
 const router = Router();
 
 router.use(protect);
 
-router.post('/airtime-purchase', purchaseAirtime);
+router.post('/airtime-purchase', restrictTo('user'), purchaseAirtime);
 
 router.route('/').get(getAllAirtimeOrder);
 router.route('/:airtimeOrderId').get(getAirtimeOrder);

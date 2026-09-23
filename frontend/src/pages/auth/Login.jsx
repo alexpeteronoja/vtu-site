@@ -1,0 +1,117 @@
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { useLogin } from '../../datahooks/authHooks';
+import { Eye, EyeOff, AlertCircle } from 'lucide-react';
+import withAuth from '../../utils/withAuth';
+
+const Login = () => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [serverError, setServerError] = useState('');
+  const navigate = useNavigate();
+
+  const { loginMutate, loginPending } = useLogin();
+
+  const { 
+    register, 
+    handleSubmit, 
+    formState: { errors } 
+  } = useForm();
+
+  const onSubmit = (data) => {
+    setServerError(''); // Clear previous errors
+    loginMutate(data, {
+      onSuccess: () => {
+        // Redirect based on user role from cookies
+        const { userRole } = withAuth();
+        if (userRole === 'admin') {
+          navigate('/admin');
+        } else {
+          navigate('/dashboard');
+        }
+      },
+      onError: (err) => {
+        // Capture error message from backend and display it inline
+        const message = err?.response?.data?.message || 'Invalid email or password. Please try again.';
+        setServerError(message);
+      }
+    });
+  };
+
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-gray-50">
+      <div className="w-full max-w-md p-8 bg-white rounded-2xl shadow-xl border border-gray-100">
+        <h2 className="text-3xl font-extrabold text-center text-secondary mb-6">Log In</h2>
+        <p className="text-center text-gray-500 mb-8">Welcome back! Please enter your details.</p>
+        
+        {/* Server Error Alert */}
+        {serverError && (
+          <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+            <p className="text-sm text-red-700">{serverError}</p>
+          </div>
+        )}
+
+        <form 
+          className="space-y-4" 
+          onSubmit={handleSubmit(onSubmit)}
+          onChange={() => { if (serverError) setServerError(''); }}
+        >
+           <div>
+             <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+             <input 
+               type="email" 
+               className={`w-full p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary ${errors.email ? 'border-red-500' : 'border-gray-300'}`} 
+               placeholder="Enter your email" 
+               {...register('email', { 
+                 required: 'Email is required',
+                 pattern: { value: /^\S+@\S+$/i, message: 'Invalid email address' }
+               })}
+             />
+             {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
+           </div>
+           
+           <div>
+             <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+             <div className="relative">
+               <input 
+                 type={showPassword ? "text" : "password"}
+                 className={`w-full p-3 pr-12 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary ${errors.password ? 'border-red-500' : 'border-gray-300'}`} 
+                 placeholder="Enter your password" 
+                 {...register('password', { 
+                   required: 'Password is required' 
+                 })}
+               />
+               <button
+                 type="button"
+                 onClick={() => setShowPassword(!showPassword)}
+                 className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+               >
+                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+               </button>
+             </div>
+             {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
+           </div>
+           
+           <div className="flex justify-end">
+             <Link to="/forgot-password" className="text-sm font-medium text-primary hover:underline">Forgot password?</Link>
+           </div>
+           
+           <button 
+             type="submit" 
+             disabled={loginPending}
+             className={`w-full bg-primary text-white p-3 rounded-xl font-bold hover:bg-orange-600 transition-colors shadow-md shadow-orange-500/20 mt-4 ${loginPending ? 'opacity-70 cursor-not-allowed' : ''}`}
+           >
+             {loginPending ? 'Logging in...' : 'Sign In'}
+           </button>
+        </form>
+        
+        <p className="text-center text-sm text-gray-500 mt-6">
+          Don't have an account? <Link to="/signup" className="text-primary font-medium hover:underline">Sign up</Link>
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default Login;

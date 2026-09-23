@@ -64,6 +64,7 @@ const sendErrorProd = (err, res) => {
     res.status(err.statusCode).json({
       status: err.status,
       message: err.message,
+      statusCode: err.statusCode,
     });
 
     // Programming or other unknown error: don't leak to the client
@@ -76,6 +77,7 @@ const sendErrorProd = (err, res) => {
     res.status(500).json({
       status: 'error',
       message: 'Something Went very wrong',
+      statusCode: 500,
     });
   }
 };
@@ -87,7 +89,7 @@ export const errorHandler = (err, req, res, next) => {
   err.status = err.status || 'error';
 
   if (process.env.NODE_ENV === 'development') {
-    return sendErrorDev({ err, res }, 'Unexpected application error');
+    return sendErrorDev(err, res);
   }
 
   let error = err;

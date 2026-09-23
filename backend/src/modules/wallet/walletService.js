@@ -16,6 +16,18 @@ export const createWalletService = async ({ userId, session }) => {
   return { wallet };
 };
 
+export const deleteWalletService = async ({ userId, session }) => {
+  const wallet = await Wallet.deleteOne({ user: userId }).session(
+    session || null,
+  );
+
+  if (!wallet) {
+    throw new AppError('Wallet not found', 404);
+  }
+
+  return { wallet };
+};
+
 export const walletdebitService = async ({
   userId,
   amount,
@@ -64,23 +76,21 @@ export const walletCreditService = async ({
   transactionType,
   status,
 }) => {
-  const wallet = await Wallet.findOne({ user: userId }).session(
-    session || null,
-  );
+  if (amount <= 0) {
+    throw new AppError('Enter a valid amount');
+  }
+
+  const wallet = await Wallet.findOne({ user: userId }).session(session);
 
   if (!wallet) {
     throw new AppError('Wallet not found', 404);
-  }
-
-  if (amount <= 0) {
-    throw new AppError('Enter a valid amount');
   }
 
   const balanceBefore = wallet.balance;
   wallet.balance += amount;
   await wallet.save({ session });
 
-  const transaction = await WalletTransaction(
+  const [transaction] = await WalletTransaction.create(
     [
       {
         user: userId,
@@ -94,6 +104,8 @@ export const walletCreditService = async ({
     ],
     { session },
   );
+
+  console.log(transaction);
 
   return { wallet, transaction };
 };

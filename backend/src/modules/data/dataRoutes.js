@@ -14,7 +14,7 @@ const router = Router();
 
 router.use(protect);
 
-router.post('/data-purchase/:dataPlanId', purchaseData);
+router.post('/data-purchase/:dataPlanId', restrictTo('user'), purchaseData);
 
 router.get('/data-order', getAllDataOrder);
 router.get('/data-order/:dataOrderId', getDataOrder);

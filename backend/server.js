@@ -3,16 +3,21 @@ import mongoose from 'mongoose';
 import { app } from './app.js';
 import { startPaymentReconciliation } from './src/common/jobs/reconcilePayment.js';
 import { logger } from './src/common/utils/logger.js';
+import { AppError } from './src/common/utils/appError.js';
 
 const DB = process.env.DATABASE;
+const port = process.env.PORT || 3000;
 
 mongoose
   .connect(DB)
   .then(() => console.log('DB Connected'))
-  .catch((err) => logger.error('Error', err));
+  .catch((err) => {
+    logger.error('Error', err);
+    throw new AppError('Error Connecting to the Database', 500);
+  });
 
-const server = app.listen(process.env.PORT || 3000, () => {
-  console.log('Server Started on Port 3000');
+const server = app.listen(port, () => {
+  console.log(`Server Started on Port ${port}`);
 
   startPaymentReconciliation();
 });

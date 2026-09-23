@@ -27,6 +27,6 @@ export const getAllTransaction = catchAsync(async (req, res, next) => {
     res,
     200,
     { data: { meta, transactions } },
-    'Wallet Retrieved Success',
+    'Wallet Transaction Retrieved Success',
   );
 });
