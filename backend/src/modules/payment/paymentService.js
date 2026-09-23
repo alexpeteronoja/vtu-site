@@ -24,7 +24,7 @@ export const getAllPaymentService = async ({
   }
 
   const features = new APIFeatures(
-    Payment.find(filter),
+    Payment.find(filter).populate('user', 'fullname email'),
     requestQuery,
     Payment,
     filter,

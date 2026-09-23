@@ -196,7 +196,7 @@ export const getAllAirtimeOrderService = async ({
   }
 
   const features = new APIFeatures(
-    AirtimeOrder.find(filter),
+    AirtimeOrder.find(filter).populate('user', 'fullname email'),
     requestQuery,
     AirtimeOrder,
     filter,

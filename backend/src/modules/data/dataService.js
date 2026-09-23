@@ -85,7 +85,7 @@ export const getAllDataOrderService = async ({
   }
 
   const features = new APIFeatures(
-    DataOrder.find(filter),
+    DataOrder.find(filter).populate('user', 'fullname email'),
     requestQuery,
     DataOrder,
     filter,

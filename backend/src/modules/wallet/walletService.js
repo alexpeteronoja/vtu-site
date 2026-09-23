@@ -132,7 +132,7 @@ export const getAllTransactionService = async ({
   }
 
   const features = new APIFeatures(
-    WalletTransaction.find(filter),
+    WalletTransaction.find(filter).populate('user', 'fullname email'),
     requestQuery,
     WalletTransaction,
     filter,
