@@ -169,6 +169,7 @@ export const verifyAndCreditPaystackService = async ({ reference }) => {
         session,
         transactionType: 'funding',
         status: 'successful',
+        paymentMethod: 'paystack',
       });
 
       await session.commitTransaction();

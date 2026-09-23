@@ -75,6 +75,7 @@ export const walletCreditService = async ({
   session,
   transactionType,
   status,
+  paymentMethod,
 }) => {
   if (amount <= 0) {
     throw new AppError('Enter a valid amount');
@@ -99,7 +100,7 @@ export const walletCreditService = async ({
         balanceBefore,
         balanceAfter: wallet.balance,
         status,
-        paymentMethod: 'wallet',
+        paymentMethod: paymentMethod || 'wallet',
       },
     ],
     { session },
