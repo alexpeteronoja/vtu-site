@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Clock, Wallet, ArrowUpRight, ArrowDownLeft, Receipt, Phone, Wifi } from 'lucide-react';
+import { Clock, Wallet, ArrowUpRight, ArrowDownLeft, Receipt, Phone, Wifi, User } from 'lucide-react';
 import { useGetTransactions } from '../../datahooks/walletHooks';
 import { useGetPayments } from '../../datahooks/paymentHooks';
 import { useGetAirtimeOrders } from '../../datahooks/airtimeHooks';
@@ -7,7 +7,7 @@ import { useGetDataOrders } from '../../datahooks/dataHooks';
 import { useLocation } from 'react-router-dom';
 import Pagination from '../../components/common/Pagination';
 
-const Transactions = () => {
+const AdminTransactions = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const initialTab = queryParams.get('tab') || 'wallet';
@@ -44,12 +44,12 @@ const Transactions = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-6">
       
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-secondary">Transaction History</h1>
-          <p className="text-gray-500 mt-1">View your wallet activity, funding history, and orders.</p>
+          <h1 className="text-2xl font-bold text-gray-900">Global Transactions</h1>
+          <p className="text-gray-500 mt-1">View platform-wide wallet activity, funding history, and orders.</p>
         </div>
       </div>
 
@@ -90,7 +90,8 @@ const Transactions = () => {
             <table className="w-full text-left border-collapse min-w-max">
               <thead>
                 <tr className="bg-gray-50/50 text-gray-500 text-sm border-b border-gray-100">
-                  <th className="p-4 font-medium">Type</th>
+                  <th className="p-4 font-medium">User</th>
+                  <th className="p-4 font-medium">Type & Details</th>
                   <th className="p-4 font-medium">Amount</th>
                   <th className="p-4 font-medium">Status</th>
                   <th className="p-4 font-medium">Date</th>
@@ -99,19 +100,30 @@ const Transactions = () => {
               <tbody className="divide-y divide-gray-100">
                 {transactionsLoading ? (
                   <tr>
-                    <td colSpan="4" className="p-8 text-center">
+                    <td colSpan="5" className="p-8 text-center">
                       <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                     </td>
                   </tr>
                 ) : transactions?.length > 0 ? (
                   transactions.map((tx, idx) => (
                     <tr key={idx} className="hover:bg-gray-50/50 transition-colors">
+                      <td className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
+                             <User className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <p className="font-bold text-gray-900 text-sm">{tx.user?.fullname || 'Unknown'}</p>
+                            <p className="text-xs text-gray-500">{tx.user?.email || 'N/A'}</p>
+                          </div>
+                        </div>
+                      </td>
                       <td className="p-4 flex items-center gap-3">
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center ${tx.type === 'credit' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
                            {tx.type === 'credit' ? <ArrowDownLeft className="w-5 h-5" /> : <ArrowUpRight className="w-5 h-5" />}
                         </div>
                         <div>
-                          <p className="font-bold text-gray-900 capitalize">{tx.title || tx.type || 'Transaction'}</p>
+                          <p className="font-bold text-gray-900 capitalize text-sm">{tx.title || tx.type || 'Transaction'}</p>
                           <p className="text-xs text-gray-500">{tx.description || 'Wallet transaction'}</p>
                         </div>
                       </td>
@@ -134,9 +146,9 @@ const Transactions = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="4" className="p-12 text-center flex flex-col items-center justify-center text-gray-500">
+                    <td colSpan="5" className="p-12 text-center flex flex-col items-center justify-center text-gray-500">
                       <Wallet className="w-12 h-12 text-gray-300 mb-3" />
-                      <p>No wallet activity found.</p>
+                      <p>No wallet activity found on the platform.</p>
                     </td>
                   </tr>
                 )}
@@ -151,6 +163,7 @@ const Transactions = () => {
             <table className="w-full text-left border-collapse min-w-max">
               <thead>
                 <tr className="bg-gray-50/50 text-gray-500 text-sm border-b border-gray-100">
+                  <th className="p-4 font-medium">User</th>
                   <th className="p-4 font-medium">Reference</th>
                   <th className="p-4 font-medium">Amount</th>
                   <th className="p-4 font-medium">Status</th>
@@ -160,19 +173,30 @@ const Transactions = () => {
               <tbody className="divide-y divide-gray-100">
                 {paymentsLoading ? (
                   <tr>
-                    <td colSpan="4" className="p-8 text-center">
+                    <td colSpan="5" className="p-8 text-center">
                       <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                     </td>
                   </tr>
                 ) : payments?.length > 0 ? (
                   payments.map((payment, idx) => (
                     <tr key={idx} className="hover:bg-gray-50/50 transition-colors">
+                      <td className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
+                             <User className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <p className="font-bold text-gray-900 text-sm">{payment.user?.fullname || 'Unknown'}</p>
+                            <p className="text-xs text-gray-500">{payment.user?.email || 'N/A'}</p>
+                          </div>
+                        </div>
+                      </td>
                       <td className="p-4 flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
                            <Receipt className="w-5 h-5" />
                         </div>
                         <div>
-                          <p className="font-bold text-gray-900 uppercase">{payment.paymentReference || 'N/A'}</p>
+                          <p className="font-bold text-gray-900 uppercase text-sm">{payment.paymentReference || 'N/A'}</p>
                           <p className="text-xs text-gray-500">{payment.paymentMethod || 'Paystack'}</p>
                         </div>
                       </td>
@@ -195,9 +219,9 @@ const Transactions = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="4" className="p-12 text-center flex flex-col items-center justify-center text-gray-500">
+                    <td colSpan="5" className="p-12 text-center flex flex-col items-center justify-center text-gray-500">
                       <Clock className="w-12 h-12 text-gray-300 mb-3" />
-                      <p>No funding history found.</p>
+                      <p>No funding history found on the platform.</p>
                     </td>
                   </tr>
                 )}
@@ -212,6 +236,7 @@ const Transactions = () => {
             <table className="w-full text-left border-collapse min-w-max">
               <thead>
                 <tr className="bg-gray-50/50 text-gray-500 text-sm border-b border-gray-100">
+                  <th className="p-4 font-medium">User</th>
                   <th className="p-4 font-medium">Network & Phone</th>
                   <th className="p-4 font-medium">Amount</th>
                   <th className="p-4 font-medium">Status</th>
@@ -221,19 +246,30 @@ const Transactions = () => {
               <tbody className="divide-y divide-gray-100">
                 {airtimeOrdersLoading ? (
                   <tr>
-                    <td colSpan="4" className="p-8 text-center">
+                    <td colSpan="5" className="p-8 text-center">
                       <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                     </td>
                   </tr>
                 ) : airtimeOrders?.length > 0 ? (
                   airtimeOrders.map((order, idx) => (
                     <tr key={idx} className="hover:bg-gray-50/50 transition-colors">
+                      <td className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
+                             <User className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <p className="font-bold text-gray-900 text-sm">{order.user?.fullname || 'Unknown'}</p>
+                            <p className="text-xs text-gray-500">{order.user?.email || 'N/A'}</p>
+                          </div>
+                        </div>
+                      </td>
                       <td className="p-4 flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center">
                            <Phone className="w-5 h-5" />
                         </div>
                         <div>
-                          <p className="font-bold text-gray-900 uppercase">{order.network}</p>
+                          <p className="font-bold text-gray-900 uppercase text-sm">{order.network}</p>
                           <p className="text-xs text-gray-500">{order.phoneNumber}</p>
                         </div>
                       </td>
@@ -256,9 +292,9 @@ const Transactions = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="4" className="p-12 text-center flex flex-col items-center justify-center text-gray-500">
+                    <td colSpan="5" className="p-12 text-center flex flex-col items-center justify-center text-gray-500">
                       <Phone className="w-12 h-12 text-gray-300 mb-3" />
-                      <p>No airtime orders found.</p>
+                      <p>No airtime orders found on the platform.</p>
                     </td>
                   </tr>
                 )}
@@ -273,6 +309,7 @@ const Transactions = () => {
             <table className="w-full text-left border-collapse min-w-max">
               <thead>
                 <tr className="bg-gray-50/50 text-gray-500 text-sm border-b border-gray-100">
+                  <th className="p-4 font-medium">User</th>
                   <th className="p-4 font-medium">Network & Phone</th>
                   <th className="p-4 font-medium">Amount</th>
                   <th className="p-4 font-medium">Status</th>
@@ -282,19 +319,30 @@ const Transactions = () => {
               <tbody className="divide-y divide-gray-100">
                 {dataOrdersLoading ? (
                   <tr>
-                    <td colSpan="4" className="p-8 text-center">
+                    <td colSpan="5" className="p-8 text-center">
                       <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                     </td>
                   </tr>
                 ) : dataOrders?.length > 0 ? (
                   dataOrders.map((order, idx) => (
                     <tr key={idx} className="hover:bg-gray-50/50 transition-colors">
+                      <td className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
+                             <User className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <p className="font-bold text-gray-900 text-sm">{order.user?.fullname || 'Unknown'}</p>
+                            <p className="text-xs text-gray-500">{order.user?.email || 'N/A'}</p>
+                          </div>
+                        </div>
+                      </td>
                       <td className="p-4 flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-cyan-50 text-cyan-600 flex items-center justify-center">
                            <Wifi className="w-5 h-5" />
                         </div>
                         <div>
-                          <p className="font-bold text-gray-900 uppercase">{order.network}</p>
+                          <p className="font-bold text-gray-900 uppercase text-sm">{order.network}</p>
                           <p className="text-xs text-gray-500">{order.phoneNumber} • {order.planName}</p>
                         </div>
                       </td>
@@ -317,9 +365,9 @@ const Transactions = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="4" className="p-12 text-center flex flex-col items-center justify-center text-gray-500">
+                    <td colSpan="5" className="p-12 text-center flex flex-col items-center justify-center text-gray-500">
                       <Wifi className="w-12 h-12 text-gray-300 mb-3" />
-                      <p>No data orders found.</p>
+                      <p>No data orders found on the platform.</p>
                     </td>
                   </tr>
                 )}
@@ -355,4 +403,4 @@ const Transactions = () => {
   );
 };
 
-export default Transactions;
+export default AdminTransactions;

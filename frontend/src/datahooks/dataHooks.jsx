@@ -10,7 +10,7 @@ export const useGetAllDataPlans = () => {
   });
 
   return {
-    dataPlans: data?.data?.data?.data, // Check backend exact response structure
+    dataPlans: data?.data?.data?.dataPlan, // Fix: Use correct key from backend
     dataPlansLoading: isLoading,
     dataPlansError: isError,
     errorDetails: error,
@@ -106,14 +106,15 @@ export const useDeleteDataPlan = () => {
 };
 
 // Get Data Orders
-export const useGetDataOrders = () => {
+export const useGetDataOrders = (queryParams = '') => {
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ['dataOrders'],
-    queryFn: () => axiosClient.get('/data/data-order'),
+    queryKey: ['dataOrders', queryParams],
+    queryFn: () => axiosClient.get(`/data/data-order${queryParams}`),
   });
 
   return {
-    dataOrders: data?.data?.data?.data,
+    dataOrders: data?.data?.data?.dataOrder,
+    meta: data?.data?.data?.meta,
     dataOrdersLoading: isLoading,
     dataOrdersError: isError,
     errorDetails: error,

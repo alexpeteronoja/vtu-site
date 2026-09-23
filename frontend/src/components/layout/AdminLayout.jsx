@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, Database, LogOut, Menu, User } from 'lucide-react';
+import { LayoutDashboard, Users, Database, LogOut, Menu, User, Wallet } from 'lucide-react';
 import withAuth from '../../utils/withAuth';
 import { useLogout } from '../../datahooks/authHooks';
 
 const AdminLayout = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const [isDropdownOpen, setDropdownOpen] = useState(false);
   const location = useLocation();
   const { user } = withAuth();
   const { logoutMutate, logoutPending } = useLogout();
@@ -18,6 +19,7 @@ const AdminLayout = () => {
     { icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard', path: '/admin' },
     { icon: <Users className="w-5 h-5" />, label: 'Manage Users', path: '/admin/users' },
     { icon: <Database className="w-5 h-5" />, label: 'Data Plans', path: '/admin/data-plans' },
+    { icon: <Wallet className="w-5 h-5" />, label: 'Transactions', path: '/admin/transactions' },
   ];
 
   return (
@@ -102,10 +104,39 @@ const AdminLayout = () => {
             <h2 className="text-xl font-bold text-gray-900">Admin Control Panel</h2>
           </div>
           
-          <div className="flex items-center gap-4">
-             <div className="w-10 h-10 rounded-full bg-gray-100 text-gray-600 border border-gray-200 flex items-center justify-center">
+          <div className="relative">
+             <button 
+               onClick={() => setDropdownOpen(!isDropdownOpen)}
+               className="w-10 h-10 rounded-full bg-gray-100 text-gray-600 border border-gray-200 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 transition-colors"
+             >
                 <User className="w-5 h-5" />
-             </div>
+             </button>
+
+             {isDropdownOpen && (
+               <>
+                 <div 
+                   className="fixed inset-0 z-40" 
+                   onClick={() => setDropdownOpen(false)}
+                 />
+                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 z-50 overflow-hidden py-1">
+                   <div className="px-4 py-3 border-b border-gray-50 mb-1">
+                     <p className="text-sm font-bold text-gray-900 truncate">{user?.name || 'Administrator'}</p>
+                     <p className="text-xs text-gray-500 truncate">{user?.email || 'admin@vtuhub.com'}</p>
+                   </div>
+                   <button
+                     onClick={() => {
+                       setDropdownOpen(false);
+                       handleLogout();
+                     }}
+                     disabled={logoutPending}
+                     className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors disabled:opacity-50 font-medium"
+                   >
+                     <LogOut className="w-4 h-4" />
+                     {logoutPending ? 'Logging out...' : 'Log Out'}
+                   </button>
+                 </div>
+               </>
+             )}
           </div>
         </header>
 

@@ -17,15 +17,15 @@ export const useGetWalletBalance = () => {
 };
 
 // Get Wallet Transactions
-export const useGetTransactions = () => {
+export const useGetTransactions = (queryParams = '') => {
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ['wallet', 'transactions'],
-    queryFn: () => axiosClient.get('/wallet/get-transaction'),
+    queryKey: ['wallet', 'transactions', queryParams],
+    queryFn: () => axiosClient.get(`/wallet/get-transaction${queryParams}`),
   });
 
-  console.log("Raw transactions data:", data?.data);
   return {
     transactions: data?.data?.data?.transactions || data?.data?.transactions,
+    meta: data?.data?.meta || data?.data?.data?.meta,
     transactionsLoading: isLoading,
     transactionsError: isError,
     errorDetails: error,

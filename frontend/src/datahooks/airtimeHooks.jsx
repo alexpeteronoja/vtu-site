@@ -31,14 +31,15 @@ export const usePurchaseAirtime = () => {
 };
 
 // Get Airtime Orders
-export const useGetAirtimeOrders = () => {
+export const useGetAirtimeOrders = (queryParams = '') => {
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ['airtimeOrders'],
-    queryFn: () => axiosClient.get('/airtime/'),
+    queryKey: ['airtimeOrders', queryParams],
+    queryFn: () => axiosClient.get(`/airtime/${queryParams}`),
   });
 
   return {
-    airtimeOrders: data?.data?.data?.data,
+    airtimeOrders: data?.data?.data?.airtimeOrder,
+    meta: data?.data?.data?.meta,
     airtimeOrdersLoading: isLoading,
     airtimeOrdersError: isError,
     errorDetails: error,

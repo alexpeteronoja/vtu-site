@@ -55,14 +55,15 @@ export const useVerifyPayment = (reference) => {
 };
 
 // Get All Payments (Funding History)
-export const useGetPayments = (params = { sort: '-createdAt' }) => {
+export const useGetPayments = (queryParams = '') => {
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ['payment', 'all', params],
-    queryFn: () => axiosClient.get('/payment', { params }),
+    queryKey: ['payment', 'all', queryParams],
+    queryFn: () => axiosClient.get(`/payment${queryParams}`),
   });
 
   return {
-    payments: data?.data?.data?.payment || [], // Assuming backend returns { data: { payment: [...] } }
+    payments: data?.data?.data?.payment || [],
+    meta: data?.data?.meta || data?.data?.data?.meta,
     paymentsLoading: isLoading,
     paymentsError: isError,
     errorDetails: error,

@@ -19,6 +19,7 @@ import AdminLayout from './components/layout/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ManageUsers from './pages/admin/ManageUsers';
 import ManageDataPlans from './pages/admin/ManageDataPlans';
+import AdminTransactions from './pages/admin/AdminTransactions';
 
 import ProtectedRoute from './components/common/ProtectedRoute';
 
@@ -50,6 +51,7 @@ function App() {
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/users" element={<ManageUsers />} />
             <Route path="/admin/data-plans" element={<ManageDataPlans />} />
+            <Route path="/admin/transactions" element={<AdminTransactions />} />
           </Route>
         </Route>
       </Routes>
