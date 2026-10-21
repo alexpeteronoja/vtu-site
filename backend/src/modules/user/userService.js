@@ -43,6 +43,18 @@ export const getUserService = async ({
 // Delete User Service
 
 export const deleteUserService = async ({ userId }) => {
+  const protectedEmails = ['admin@demo.com', 'user@demo.com'];
+
+  const existingUser = await User.findById(userId);
+
+  if (!existingUser) {
+    throw new AppError('No user found with that ID', 404);
+  }
+
+  if (protectedEmails.includes(existingUser.email?.toLowerCase())) {
+    throw new AppError('This demo account cannot be deleted', 403);
+  }
+
   const session = await mongoose.startSession();
   session.startTransaction();
 
@@ -70,6 +82,8 @@ export const deleteUserService = async ({ userId }) => {
 // Update Service
 
 export const updateUserService = async ({ userId, userRole, body, file }) => {
+  const protectedEmails = ['admin@demo.com', 'user@demo.com'];
+
   const filterObj = (obj, ...allowedFields) => {
     const newObj = {};
     Object.keys(obj).forEach((el) => {
@@ -79,7 +93,17 @@ export const updateUserService = async ({ userId, userRole, body, file }) => {
     return newObj;
   };
 
-  // 1) Create Error if User post password data.
+  const existingUser = await User.findById(userId);
+
+  if (!existingUser) {
+    throw new AppError('No user found with that ID', 404);
+  }
+
+  if (protectedEmails.includes(existingUser.email?.toLowerCase())) {
+    throw new AppError('This demo account cannot be deleted', 403);
+  }
+
+  // 2) Create Error if User post password data.
 
   if (body.password || body.passwordConfirm) {
     throw new AppError(
@@ -92,7 +116,7 @@ export const updateUserService = async ({ userId, userRole, body, file }) => {
     throw new AppError('You are not authorised to perform this action', 403);
   }
 
-  // 2) Update User Document (self)
+  // 3) Update User Document (self)
 
   // Filtered out unwanted field name that are not allowed to be updated
   const filteredBody = filterObj(body, 'fullname', 'phone', 'role');

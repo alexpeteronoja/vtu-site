@@ -14,6 +14,12 @@ export const signUpService = async ({
   passwordConfirm,
   role,
 }) => {
+  const allowedRoles = ['user'];
+
+  if (!allowedRoles.includes(role)) {
+    throw new AppError('you are not allowed to create this role', 403);
+  }
+
   const session = await mongoose.startSession();
   session.startTransaction();
 
@@ -173,7 +179,7 @@ export const resetPasswordService = async ({
   await user.save();
 
   const accessToken = signAccessToken(user._id);
-  
+
   user.password = undefined;
 
   return { user, accessToken };
