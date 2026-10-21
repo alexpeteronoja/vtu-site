@@ -22,20 +22,23 @@ const Register = () => {
 
   const onSubmit = (data) => {
     setServerError('');
-    signupMutate(data, {
-      onSuccess: () => {
-        const { userRole } = withAuth();
-        if (userRole === 'admin') {
-          navigate('/admin');
-        } else {
-          navigate('/dashboard');
+    signupMutate(
+      { ...data, role: 'user' },
+      {
+        onSuccess: () => {
+          const { userRole } = withAuth();
+          if (userRole === 'admin') {
+            navigate('/admin');
+          } else {
+            navigate('/dashboard');
+          }
+        },
+        onError: (err) => {
+          const message = err?.response?.data?.message || 'Something went wrong. Please try again.';
+          setServerError(message);
         }
-      },
-      onError: (err) => {
-        const message = err?.response?.data?.message || 'Something went wrong. Please try again.';
-        setServerError(message);
       }
-    });
+    );
   };
 
   // Watch password to validate passwordConfirm

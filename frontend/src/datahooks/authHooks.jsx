@@ -7,7 +7,8 @@ import { useNavigate } from 'react-router-dom';
 // Signup
 export const useSignup = () => {
   const { mutate, mutateAsync, isPending, isError, isSuccess } = useMutation({
-    mutationFn: (data) => axiosClient.post('/auth/signup', data),
+    mutationFn: (data) =>
+      axiosClient.post('/auth/signup', { role: 'user', ...data }),
     onSuccess: (res) => {
       const { user, accessToken } = res.data.data;
       
