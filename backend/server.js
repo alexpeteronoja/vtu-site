@@ -1,66 +1,34 @@
 import 'dotenv/config';
 import mongoose from 'mongoose';
 import { app } from './app.js';
-import { startPaymentReconciliation } from './src/common/jobs/reconcilePayment.js';
-import { logger } from './src/common/utils/logger.js';
-import { AppError } from './src/common/utils/appError.js';
 
-const DB = process.env.DATABASE;
-const port = process.env.PORT || 3000;
+console.log('[BOOT] server.js loaded');
+console.log('[BOOT] PORT:', process.env.PORT || 3000);
+console.log('[BOOT] DATABASE configured:', Boolean(process.env.DATABASE));
 
-let server;
+process.on('uncaughtExceptionMonitor', (err) => {
+  console.error('[FATAL] Uncaught exception:', err);
+});
 
 async function startServer() {
-  if (!DB) {
-    throw new AppError('DATABASE environment variable is missing', 500);
+  try {
+    console.log('[BOOT] Connecting to MongoDB...');
+
+    await mongoose.connect(process.env.DATABASE, {
+      serverSelectionTimeoutMS: 10000,
+    });
+
+    console.log('[BOOT] MongoDB connected');
+
+    const port = process.env.PORT || 3000;
+
+    app.listen(port, '0.0.0.0', () => {
+      console.log(`[BOOT] HTTP server listening on ${port}`);
+    });
+  } catch (err) {
+    console.error('[BOOT] Startup failed:', err);
+    process.exitCode = 1;
   }
-
-  await mongoose.connect(DB);
-  console.log('DB Connected');
-
-  server = app.listen(port, () => {
-    console.log(`Server Started on Port ${port}`);
-
-    startPaymentReconciliation();
-  });
-
-  server.on('error', (err) => {
-    console.error('HTTP server error:', err);
-    process.exit(1);
-  });
 }
 
-startServer().catch((err) => {
-  console.error('Server startup failed:', err);
-  process.exit(1);
-});
-
-// mongoose
-//   .connect(DB)
-//   .then(() => console.log('DB Connected'))
-//   .catch((err) => {
-//     logger.error('Error', err);
-//     throw new AppError('Error Connecting to the Database', 500);
-//   });
-
-process.on('unhandledRejection', (err) => {
-  logger.error(err.name, err.message);
-  logger.error('UNHANDLED REJECTION! 🌤 Shutting down...');
-
-  if (server) {
-    server.close(() => process.exit(1));
-  } else {
-    process.exit(1);
-  }
-});
-
-process.on('uncaughtException', (err) => {
-  logger.error(err.name, err.message);
-  logger.error('UNHANDLED EXCEPTION! 🌤 Shutting down...');
-
-  if (server) {
-    server.close(() => process.exit(1));
-  } else {
-    process.exit(1);
-  }
-});
+startServer();
