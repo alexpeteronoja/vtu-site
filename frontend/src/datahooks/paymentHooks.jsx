@@ -35,22 +35,27 @@ export const useInitializePayment = () => {
 export const useVerifyPayment = (reference) => {
   const queryClient = useQueryClient();
   
-  const { data, isLoading, isError, error } = useQuery({
+  const query = useQuery({
     queryKey: ['payment', 'verify', reference],
-    queryFn: () => axiosClient.get(`/payment/verify-paystack/${reference}`),
-    enabled: !!reference, // Only run if we have a reference
-    onSuccess: () => {
-      toast.success('Payment verified and wallet credited!');
+    queryFn: async () => {
+      const res = await axiosClient.get(`/payment/verify-paystack/${reference}`);
+      // Invalidate wallet queries on successful verification
       queryClient.invalidateQueries({ queryKey: ['wallet', 'balance'] });
       queryClient.invalidateQueries({ queryKey: ['wallet', 'transactions'] });
+      return res.data;
     },
+    enabled: !!reference, // Only run if we have a reference
+    retry: 1,
+    refetchOnWindowFocus: false,
   });
 
   return {
-    verificationData: data?.data,
-    verifyLoading: isLoading,
-    verifyError: isError,
-    errorDetails: error,
+    verificationData: query.data,
+    verifyLoading: query.isLoading,
+    verifyError: query.isError,
+    errorDetails: query.error,
+    refetch: query.refetch,
+    isSuccess: query.isSuccess,
   };
 };
 
