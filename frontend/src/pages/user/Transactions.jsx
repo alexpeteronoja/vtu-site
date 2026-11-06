@@ -200,7 +200,7 @@ const Transactions = () => {
         {/* FUNDING HISTORY TAB */}
         {activeTab === "funding" && (
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse min-w-max">
+            <table className="w-full text-left border-collapse min-w-max ">
               <thead>
                 <tr className="bg-gray-50/50 text-gray-500 text-sm border-b border-gray-100">
                   <th className="p-4 font-medium">Reference</th>
@@ -229,7 +229,6 @@ const Transactions = () => {
                         <div>
                           <p className="font-bold text-gray-900 uppercase">
                             {shortenText(payment.reference, 20) || "N/A"}
-                            {payment.reference}
                           </p>
                           <p className="text-xs text-gray-500">
                             {payment.paymentMethod || "Paystack"}
