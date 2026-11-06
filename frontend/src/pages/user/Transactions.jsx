@@ -311,7 +311,7 @@ const Transactions = () => {
                             {order.network}
                           </p>
                           <p className="text-xs text-gray-500">
-                            {order.phoneNumber}
+                            {shortenText(order.phoneNumber, 20)}
                           </p>
                         </div>
                       </td>
@@ -391,7 +391,8 @@ const Transactions = () => {
                             {order.network}
                           </p>
                           <p className="text-xs text-gray-500">
-                            {order.phoneNumber} • {order.planName}
+                            {shortenText(order.phoneNumber, 20)} •{" "}
+                            {order.planName}
                           </p>
                         </div>
                       </td>
