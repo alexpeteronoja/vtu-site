@@ -21,6 +21,7 @@ export const initializePaystackTransaction = async ({
     amount: amount * 100, // in kobo
     reference,
     metadata,
+    callback_url: `${process.env.NODE_ENV === 'production' ? 'https://vtu-site-sooty.vercel.app' : 'http://localhost:5173'}/payment/callback`,
   };
 
   const response = await paystackApi.post('/transaction/initialize', payload);
